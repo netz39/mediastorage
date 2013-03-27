@@ -15,6 +15,9 @@ import org.apache.commons.fileupload.servlet.FileCleanerCleanup;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileCleaningTracker;
 
+import de.netz39.mediastorage.MediaItem;
+import de.netz39.mediastorage.store.StorageManager;
+
 public class UploadServlet extends HttpServlet {
 	private static final long serialVersionUID = -4562058556833725285L;
 
@@ -44,8 +47,14 @@ public class UploadServlet extends HttpServlet {
 				// ignore form fields
 				if (item.isFormField())
 					continue;
-				
-				final String name = item.getName();
+
+				final MediaItem mi = MediaItem.forUploadData(item.getName(),
+						item.getContentType());
+
+				String sb = StorageManager.INSTANCE.store(mi,
+						item.getInputStream());
+
+				response.getWriter().println(sb);
 			}
 		} catch (FileUploadException e) {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
